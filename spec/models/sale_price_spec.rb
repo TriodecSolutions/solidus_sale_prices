@@ -106,15 +106,16 @@ describe Spree::SalePrice do
       before { sale_price.variant.update_columns(product_id: nil) }
 
       it 'does not touch product' do
-        expect { discard }.not_to change { product.reload.updated_at }
+        expect { discard }.not_to(change { product.reload.updated_at })
       end
     end
 
+    # in solidus 4 when variant is discarded the time stamp is updated
     context 'when associated variant has been destroyed' do
       before { sale_price.variant.discard }
 
-      it 'does not touch product' do
-        expect { discard }.not_to change { product.reload.updated_at }
+      it 'does touch product' do
+        expect { discard }.to(change { product.reload.updated_at })
       end
     end
 
