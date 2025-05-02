@@ -44,8 +44,9 @@ describe Spree::SalePrice do
   end
 
   describe '#display_price' do
-    let(:sale_price) { create(:active_sale_price) }
     subject(:display_price) { sale_price.display_price }
+
+    let(:sale_price) { create(:active_sale_price) }
 
     it 'is expected to be an instance of Spree::Money' do
       expect(display_price).to be_a Spree::Money
@@ -85,7 +86,7 @@ describe Spree::SalePrice do
       end
 
       it 'preloads the variant via SQL also for soft-deleted records' do
-        records = Spree::SalePrice.with_discarded.includes(:variant)
+        records = described_class.with_discarded.includes(:variant)
         expect(records.first.variant).to be_present
       end
     end
@@ -93,11 +94,12 @@ describe Spree::SalePrice do
 
   context 'touching associated product when destroyed' do
     subject(:discard) { sale_price.reload.discard }
+
     let!(:product) { sale_price.product }
     let(:sale_price) { Timecop.travel(1.day.ago) { create(:sale_price) } }
 
     it "changes the updated_at" do
-      expect { discard }.to change { product.reload.updated_at }
+      expect { discard }.to(change { product.reload.updated_at })
     end
 
     context 'when product association has been destroyed' do
@@ -120,7 +122,7 @@ describe Spree::SalePrice do
       before { sale_price.price.discard }
 
       it 'does not touch product' do
-        expect { discard }.not_to change { product.reload.updated_at }
+        expect { discard }.not_to(change { product.reload.updated_at })
       end
     end
   end
